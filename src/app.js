@@ -59,12 +59,12 @@ app.post('/rent_logout', (req, res) => {
             accountName: account,
             password: password,
             twoFactorCode: guard
-        }, (err, sessionId, cookies) => {
+        }, (err, sessionId) => {
 
             if (err) {
                 console.log("login error",sessionId)
             } else {
-                console.log("login success");
+                console.log("login success",sessionId);
                 setTimeout(() => {
                     steamObj.flushAll(sessionId);
                 }, 2000);
