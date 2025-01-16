@@ -1,0 +1,80 @@
+const express = require('express');
+const SteamCommunity = require('steamcommunity');
+const app = express()
+const port = 8888;
+const bodyParser = require('body-parser');
+
+// 解析 application/x-www-form-urlencoded 格式的数据
+app.use(bodyParser.urlencoded({ extended: false }));
+// 解析 application/json 格式的数据
+app.use(bodyParser.json());
+
+
+SteamCommunity.prototype.flushAll = function (sessionID, cookies) {
+    this.httpRequestPost({
+        "uri": "https://store.steampowered.com/twofactor/manage_action",
+        "formData": {
+            "action": 'deauthorize',
+            "sessionid": sessionID
+        },
+    }, function (err,resposne,body) {
+
+        if (err) {
+            console.log("flush err")
+            // console.log(err);
+        } else {
+
+            this.httpRequestPost({
+                uri: 'https://store.steampowered.com/logout',
+                form: {
+                    sessionid: sessionID
+                },
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }, function (err) {
+                if(err) {
+                    console.log("logout error")
+                }else {
+                    console.log("success");
+                }
+            },'steamcommunity')
+
+        }
+        
+    },'steamcommunity'
+    )
+};
+
+app.post('/rent_logout', (req, res) => {
+    console.log(req.body);
+    let account = req.body.account;
+    let password = req.body.password;
+    let guard = req.body.guard;
+    if (!account || !password || !guard) {
+        res.send('Hello World!')
+    } else {
+        let steamObj = new SteamCommunity();
+        steamObj.login({
+            accountName: account,
+            password: password,
+            twoFactorCode: guard
+        }, (err, sessionId, cookies) => {
+
+            if (err) {
+                console.log("login error")
+                // console.log(err);
+            } else {
+                steamObj.flushAll(sessionId);
+                // console.log(sessionId);
+            }
+
+        })
+        res.send("success");
+    }
+
+})
+
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
+})
