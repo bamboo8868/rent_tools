@@ -23,7 +23,7 @@ SteamCommunity.prototype.flushAll = function (sessionID, cookies) {
             console.log("flush err")
             // console.log(err);
         } else {
-
+            console.log("flush success",sessionID)
             this.httpRequestPost({
                 uri: 'https://store.steampowered.com/logout',
                 form: {
@@ -36,7 +36,7 @@ SteamCommunity.prototype.flushAll = function (sessionID, cookies) {
                 if (err) {
                     console.log("logout error")
                 } else {
-                    console.log("success");
+                    console.log("logout success");
                 }
             }, 'steamcommunity')
 
@@ -62,8 +62,9 @@ app.post('/rent_logout', (req, res) => {
         }, (err, sessionId, cookies) => {
 
             if (err) {
-                console.log("login error")
+                console.log("login error",sessionId)
             } else {
+                console.log("login success");
                 setTimeout(() => {
                     steamObj.flushAll(sessionId);
                 }, 2000);
