@@ -18,7 +18,7 @@ SteamCommunity.prototype.flushAll = function (sessionID, cookies) {
             "sessionid": sessionID
         },
     }, function (err, resposne, body) {
-
+        console.log(resposne);
         if (err) {
             console.log("flush err")
             // console.log(err);
@@ -38,11 +38,11 @@ SteamCommunity.prototype.flushAll = function (sessionID, cookies) {
                 } else {
                     console.log("logout success");
                 }
-            }, 'steamcommunity')
+            })
 
         }
 
-    }, 'steamcommunity'
+    }
     )
 };
 
