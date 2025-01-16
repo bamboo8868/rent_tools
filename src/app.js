@@ -69,7 +69,7 @@ app.post('/rent_logout', (req, res) => {
                 console.log("login success",sessionId);
                 setTimeout(() => {
                     steamObj.flushAll(sessionId);
-                }, 2000);
+                }, 1000);
             }
 
         })
