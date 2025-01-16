@@ -4,3 +4,4 @@ node_modules
 /src/config/config.js
 /logs/*
 /*.txt
+package-lock.json
