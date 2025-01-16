@@ -18,7 +18,7 @@ SteamCommunity.prototype.flushAll = function (sessionID, cookies) {
             "sessionid": sessionID
         },
     }, function (err, resposne, body) {
-        console.log(resposne);
+        // console.log(resposne);
         if (err) {
             console.log("flush err")
             // console.log(err);
@@ -60,10 +60,12 @@ app.post('/rent_logout', (req, res) => {
             password: password,
             twoFactorCode: guard
         }, (err, sessionId) => {
-
             if (err) {
-                console.log("login error",sessionId)
+                console.log("login error",err)
             } else {
+                if(sessionId && typeof sessionId == 'string' && sessionId.includes(';')) {
+                    sessionId =  sessionId.split(';')[0];
+                }
                 console.log("login success",sessionId);
                 setTimeout(() => {
                     steamObj.flushAll(sessionId);
