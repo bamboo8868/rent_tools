@@ -17,7 +17,7 @@ SteamCommunity.prototype.flushAll = function (sessionID, cookies) {
             "action": 'deauthorize',
             "sessionid": sessionID
         },
-    }, function (err,resposne,body) {
+    }, function (err, resposne, body) {
 
         if (err) {
             console.log("flush err")
@@ -33,16 +33,16 @@ SteamCommunity.prototype.flushAll = function (sessionID, cookies) {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
             }, function (err) {
-                if(err) {
+                if (err) {
                     console.log("logout error")
-                }else {
+                } else {
                     console.log("success");
                 }
-            },'steamcommunity')
+            }, 'steamcommunity')
 
         }
-        
-    },'steamcommunity'
+
+    }, 'steamcommunity'
     )
 };
 
@@ -63,10 +63,10 @@ app.post('/rent_logout', (req, res) => {
 
             if (err) {
                 console.log("login error")
-                // console.log(err);
             } else {
-                steamObj.flushAll(sessionId);
-                // console.log(sessionId);
+                setTimeout(() => {
+                    steamObj.flushAll(sessionId);
+                }, 2000);
             }
 
         })
