@@ -47,7 +47,9 @@ SteamCommunity.prototype.flushAll = function (sessionID, cookies) {
 };
 
 app.post('/rent_logout', (req, res) => {
-    console.log(req.body);
+    let now = new Date();
+    now = now.toLocaleString('zh-cn');
+    console.log(now,req.body);
     let account = req.body.account;
     let password = req.body.password;
     let guard = req.body.guard;
