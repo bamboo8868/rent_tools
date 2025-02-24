@@ -78,6 +78,10 @@ app.post('/rent_logout', (req, res) => {
 
 })
 
+app.get('/status',(req,res)=>{
+      res.send("success");
+})
+
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
