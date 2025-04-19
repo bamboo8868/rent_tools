@@ -100,14 +100,20 @@ SteamCommunity.prototype.cs2_info = async function (steamId) {
             if (!err) {
                 let $ = cheerio.load(body);
                 let res = $("#personaldata_elements_container").find('.generic_kv_table').last();
-                let trContainer = res.find('tr').eq(1);
-                let currentStar = trContainer.find('td').eq(0).text();
-
-                // console.log(currentStar);
-                let startMatch = currentStar.match(/(\d+)/);
                 let star = 0;
-                if (startMatch) star = +startMatch[0]
-                resolve({ star: star });
+                let passport_num = 0;
+                if (res.length > 0) {
+                    let trContainer = res.find('tr').eq(1);
+                    let currentStar = trContainer.find('td').eq(0).text();
+                    passport_num = trContainer.find('td').eq(2).text();
+
+                    // console.log(currentStar);
+                    let startMatch = currentStar.match(/(\d+)/);
+
+                    if (startMatch) star = +startMatch[0]
+                }
+
+                resolve({ star: star, passport_num: passport_num });
 
             } else {
                 console.log(err);
@@ -124,7 +130,7 @@ SteamCommunity.prototype.cs2_info = async function (steamId) {
                 // console.log(body);
                 // fs.writeFileSync("3.html",body);
                 let $ = cheerio.load(body);
-                $("#inventory_history_table").find('div').each((i,item)=>{
+                $("#inventory_history_table").find('div').each((i, item) => {
                     let text = $(item).find('.tradehistory_content').text();
                     // console.log(text);
                 })
@@ -148,7 +154,8 @@ SteamCommunity.prototype.cs2_info = async function (steamId) {
     return {
         rank: rankInfo.rank,
         point: rankInfo.point,
-        star: startInfo.star
+        star: startInfo.star,
+        passport_num: startInfo.passport_num
     }
 
 
