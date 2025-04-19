@@ -121,12 +121,12 @@ SteamCommunity.prototype.cs2_info = async function (steamId) {
             uri: `https://steamcommunity.com/profiles/${steamId}/inventoryhistory/?app%5B%5D=730`
         }, function (err, response, body) {
             if (!err) {
-                console.log(body);
+                // console.log(body);
                 // fs.writeFileSync("3.html",body);
                 let $ = cheerio.load(body);
                 $("#inventory_history_table").find('div').each((i,item)=>{
                     let text = $(item).find('.tradehistory_content').text();
-                    console.log(text);
+                    // console.log(text);
                 })
                 // let trContainer = res.find('tr').eq(1);
                 // let currentStar = trContainer.find('td').eq(0).text();
