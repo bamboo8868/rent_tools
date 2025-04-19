@@ -1,6 +1,9 @@
 {
   "dependencies": {
+    "cheerio": "^1.0.0",
+    "dayjs": "^1.11.13",
     "express": "^4.21.2",
+    "steam-totp": "^2.1.2",
     "steamcommunity": "^3.48.5"
   }
 }
