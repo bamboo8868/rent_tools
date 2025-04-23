@@ -6,6 +6,7 @@ const port = 8888;
 const bodyParser = require('body-parser');
 const cheerio = require('cheerio');
 const fs = require('fs');
+const dayjs = require('dayjs');
 
 // 解析 application/x-www-form-urlencoded 格式的数据
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -130,18 +131,42 @@ SteamCommunity.prototype.cs2_info = async function (steamId) {
                 // console.log(body);
                 // fs.writeFileSync("3.html",body);
                 let $ = cheerio.load(body);
-                $("#inventory_history_table").find('div').each((i, item) => {
-                    let text = $(item).find('.tradehistory_content').text();
-                    // console.log(text);
-                })
-                // let trContainer = res.find('tr').eq(1);
-                // let currentStar = trContainer.find('td').eq(0).text();
+                let time = false;
+                if ($("#inventory_history_table").find('div').length <= 0) {
+                    resolve({ last_drop_time: false })
+                } else {
+                    $("#inventory_history_table").find('div').each((i, item) => {
+                        let text = $(item).find('.tradehistory_event_description').text();
+                        text = text.trim();
+                        // console.log(text);
+                        if (text === 'Earned a new rank and got a drop') {
+                            //获取时间
 
-                // // console.log(currentStar);
-                // let startMatch = currentStar.match(/(\d+)/);
-                // let star = 0;
-                // if (startMatch) star = +startMatch[0]
-                resolve(1);
+                            let t = $(item).children(".tradehistory_date").contents().first().text().trim();
+                            let t2 = $(item).find(".tradehistory_timestamp").text().trim();
+                            console.log(t, t2);
+                            let date1 = dayjs(t).format("YYYY-MM-DD");
+                            let date2 = t2.slice(0, t2.length - 2);
+                            let last_drop_time = `${date1} ${date2}:00`;
+                            let unix = dayjs(last_drop_time).unix();
+                            unix = unix + 3600 * 8;
+                            if (t2.includes('am')) {
+                            } else {
+                                unix = unix + 86400 / 2;
+
+
+                            }
+                            let tmp = dayjs(unix * 1000).format('YYYY-MM-DD HH:mm:ss');
+                            resolve({
+                                last_drop_time: tmp
+                            })
+                            // break;
+
+                        }
+                    })
+
+                }
+
 
             } else {
                 console.log(err);
@@ -149,13 +174,15 @@ SteamCommunity.prototype.cs2_info = async function (steamId) {
             }
         }, 'steamcommunity')
     })
-    let [rankInfo, startInfo] = await Promise.all([promise1, promise2]);
+    let [rankInfo, startInfo, lastDropInfo] = await Promise.all([promise1, promise2, promise3]);
 
+    console.log(lastDropInfo);
     return {
         rank: rankInfo.rank,
         point: rankInfo.point,
         star: startInfo.star,
-        passport_num: startInfo.passport_num
+        passport_num: startInfo.passport_num,
+        last_drop_time: lastDropInfo.last_drop_time
     }
 
 
