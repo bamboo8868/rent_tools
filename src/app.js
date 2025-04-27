@@ -188,6 +188,30 @@ SteamCommunity.prototype.cs2_info = async function (steamId) {
 
 };
 
+SteamCommunity.prototype.isLoginIn = async function () {
+    return new Promise((resolve, reject) => {
+        this.loggedIn(async (err, status) => {
+            if (!err) {
+                resolve(true);
+            } else {
+                reject(false);
+            }
+        })
+    })
+}
+
+SteamCommunity.prototype.isLoginIn2 = async function () {
+    return new Promise((resolve, reject) => {
+        this.loggedIn(async (err, status) => {
+            if (!err) {
+                resolve(true);
+            } else {
+                reject(false);
+            }
+        })
+    })
+}
+
 app.post('/rent_logout', (req, res) => {
     let now = new Date();
     now = now.toLocaleString('zh-cn');
@@ -246,39 +270,25 @@ app.post('/game_info', async (req, res) => {
         userAgent: userAgent
     });
 
+
+    let status = false;
     if (cookie) {
+        //
+        console.log("尝试使用cookie登录")
         steamObj.setCookies(cookie);
-
-        let steamId = steamObj.steamID;
-        steamObj.loggedIn(async (err, status) => {
-            if (!err) {
-                if (status) {
-                    console.log("cookie登录");
-                    let info = await steamObj.cs2_info(steamId);
-                    res.json({ code: 0, data: info });
-                } else {
-                    console.log("账号密码登录");
-                    steamObj.login({
-                        accountName: account,
-                        password: password,
-                        twoFactorCode: guard
-                    }, async (err, sessionId, cookies) => {
-                        if (err) {
-                            console.log("登录错误", err);
-                            res.json({ code: 1, message: 'STEAM登录失败' });
-                        } else {
-                            let steamId = steamObj.steamID.toString();
-                            let info = await steamObj.cs2_info(steamId);
-                            info.cookie = cookies
-                            res.json({ code: 0, data: info });
-                        }
-                    })
-                }
-            }
-        })
+        status = await steamObj.isLoginIn();
 
 
-    } else {
+        if (status) {
+            let steamId = steamObj.steamID.toString();
+            let info = await steamObj.cs2_info(steamId);
+            res.json({ code: 0, data: info });
+        } else {
+            console.log("cookie过期,使用账号密码登录");
+        }
+    }
+    
+    if (!cookie || !status) {
         console.log("账号密码登录");
         steamObj.login({
             accountName: account,
