@@ -66,6 +66,7 @@ SteamCommunity.prototype.flushAll = function (sessionID, cookies) {
 
 
 SteamCommunity.prototype.cs2_info = async function (steamId) {
+    console.log(2222);
     // https://steamcommunity.com/profiles/76561198146905562/gcpd/730/
     let promise1 = new Promise((resolve, reject) => {
         this.httpRequestGet({
@@ -80,7 +81,6 @@ SteamCommunity.prototype.cs2_info = async function (steamId) {
                 let point = res.find('div').eq(3).text();
                 rank = rank.trim();
                 point = point.trim();
-
                 let rankMatch = rank.match(/(\d+)/);
                 let pointMatch = point.match(/(\d+)/);
                 // console.log(rankMatch[0], pointMatch[0])
@@ -123,7 +123,7 @@ SteamCommunity.prototype.cs2_info = async function (steamId) {
         }, 'steamcommunity')
     })
 
-    let promise3 = await new Promise((resolve, reject) => {
+    let promise3 = new Promise((resolve, reject) => {
         this.httpRequestGet({
             uri: `https://steamcommunity.com/profiles/${steamId}/inventoryhistory/?app%5B%5D=730`
         }, function (err, response, body) {
@@ -164,7 +164,7 @@ SteamCommunity.prototype.cs2_info = async function (steamId) {
 
                         }
                     })
-
+                    resolve({ last_drop_time: false })
                 }
 
 
@@ -174,9 +174,9 @@ SteamCommunity.prototype.cs2_info = async function (steamId) {
             }
         }, 'steamcommunity')
     })
+    
     let [rankInfo, startInfo, lastDropInfo] = await Promise.all([promise1, promise2, promise3]);
 
-    console.log(lastDropInfo);
     return {
         rank: rankInfo.rank,
         point: rankInfo.point,
@@ -192,25 +192,18 @@ SteamCommunity.prototype.isLoginIn = async function () {
     return new Promise((resolve, reject) => {
         this.loggedIn(async (err, status) => {
             if (!err) {
-                resolve(true);
+                if (status) {
+                    resolve(true)
+                } else {
+                    resolve(false);
+                }
             } else {
-                reject(false);
+                resolve(false);
             }
         })
     })
 }
 
-SteamCommunity.prototype.isLoginIn2 = async function () {
-    return new Promise((resolve, reject) => {
-        this.loggedIn(async (err, status) => {
-            if (!err) {
-                resolve(true);
-            } else {
-                reject(false);
-            }
-        })
-    })
-}
 
 app.post('/rent_logout', (req, res) => {
     let now = new Date();
@@ -276,8 +269,11 @@ app.post('/game_info', async (req, res) => {
         //
         console.log("尝试使用cookie登录")
         steamObj.setCookies(cookie);
-        status = await steamObj.isLoginIn();
-
+        try {
+            status = await steamObj.isLoginIn();
+        } catch (err) {
+            console.log("catch err", err);
+        }
 
         if (status) {
             let steamId = steamObj.steamID.toString();
@@ -287,7 +283,7 @@ app.post('/game_info', async (req, res) => {
             console.log("cookie过期,使用账号密码登录");
         }
     }
-    
+
     if (!cookie || !status) {
         console.log("账号密码登录");
         steamObj.login({
@@ -299,10 +295,17 @@ app.post('/game_info', async (req, res) => {
                 console.log("登录错误", err);
                 res.json({ code: 1, message: 'STEAM登录失败' });
             } else {
+                console.log("登录成功=====>")
                 let steamId = steamObj.steamID.toString();
-                let info = await steamObj.cs2_info(steamId);
-                info.cookie = cookies
-                res.json({ code: 0, data: info });
+                try {
+                    let info = await steamObj.cs2_info(steamId);
+                    info.cookie = cookies
+                    res.json({ code: 0, data: info });
+                } catch (err) {
+                    console.log(err);
+                }
+
+
             }
         })
     }
